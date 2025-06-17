@@ -1,3 +1,6 @@
 [submodule "backend"]
 	path = backend
 	url = https://github.com/Saurav15/backend-nestjs.git
+[submodule "python-event-consumer"]
+	path = python-event-consumer
+	url = https://github.com/Saurav15/python-event-consumer.git
