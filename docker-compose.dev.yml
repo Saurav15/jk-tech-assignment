@@ -1,0 +1,76 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes: 
+    # adding volume to track the changes in the backend code and to reload the docker container.
+    # NOTE: the env will be used from the backend-code as we are associating the backend code with the docker container.
+      - ./backend:/app
+    command: npm run start:dev
+    depends_on:
+      - postgres
+      - rabbitmq
+    profiles: [full, backend]
+
+  python-consumer:
+    build:
+      context: ./python-event-consumer
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_QUEUE=${RABBITMQ_QUEUE}
+    volumes:
+      - ./python-event-consumer:/app
+    depends_on:
+      - rabbitmq
+    command: python main.py
+    profiles: [full, python]
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    profiles: [infra, full]
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    profiles: [infra, full]
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "8080:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    profiles: [infra, full]
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  pgadmin_data:
