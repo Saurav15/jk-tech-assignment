@@ -7,8 +7,6 @@ services:
     environment:
       - NODE_ENV=development
     volumes: 
-    # adding volume to track the changes in the backend code and to reload the docker container.
-    # NOTE: the env will be used from the backend-code as we are associating the backend code with the docker container.
       - ./backend:/app
     command: npm run start:dev
     depends_on:
@@ -19,12 +17,6 @@ services:
   python-consumer:
     build:
       context: ./python-event-consumer
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672
-      - RABBITMQ_USER=${RABBITMQ_USER}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
-      - RABBITMQ_QUEUE=${RABBITMQ_QUEUE}
     volumes:
       - ./python-event-consumer:/app
     depends_on:
@@ -50,8 +42,8 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     profiles: [infra, full]
