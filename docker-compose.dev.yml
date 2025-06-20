@@ -7,7 +7,7 @@ services:
     environment:
       - NODE_ENV=development
     volumes: 
-      - ./backend:/app
+      - ./backend:/app # All the env files will be taken from the backend directory
     command: npm run start:dev
     depends_on:
       - postgres
@@ -18,7 +18,7 @@ services:
     build:
       context: ./python-event-consumer
     volumes:
-      - ./python-event-consumer:/app
+      - ./python-event-consumer:/app # All the env files will be taken from the python-event-consumer directory
     depends_on:
       - rabbitmq
     command: python main.py

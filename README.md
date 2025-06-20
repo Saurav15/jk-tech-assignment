@@ -25,13 +25,17 @@ git clone --recurse-submodules https://github.com/Saurav15/pdf-analyzer-microser
 cd pdf-analyzer-microservice
 ```
 
-### 2. Backend Environment Setup
+### 2. Environment Variable Setup
 
-- Go to the backend directory:
+All environment variables needed for configuring various infrastructure services like Postgres, RabbitMQ, and pgAdmin are located in the root `.env` file.
+
+- Copy the example file to create your own `.env`:
   ```bash
-  cd backend
+  cp .env.example .env
   ```
-- Add the required environment variables in `.env.development.local` or `.env` (depending on your environment). Refer to the backend README for details.
+- Update the values in `.env` as needed for your setup.
+
+**Note:** You will also need to set up environment variables for the backend and python-event-consumer services in their respective directories, according to the requirements of each service. Refer to the README files in `backend/` and `python-event-consumer/` for details on what variables are needed and example files if provided.
 
 ### 3. Python Event Consumer Environment Setup
 
@@ -44,9 +48,17 @@ cd pdf-analyzer-microservice
 ### 4. Run the Complete Project (All Services)
 
 - Return to the project root and start all services using Docker Compose:
+
   ```bash
   docker compose -f docker-compose.dev.yml --profile full up --build
   ```
+
+- For production, use the main Docker Compose file:
+
+  ```bash
+  docker compose up --build
+  ```
+
 - **Note:** Database migrations and seeders are run automatically during startup.
 
 ### 5. Accessing the Services
@@ -54,6 +66,19 @@ cd pdf-analyzer-microservice
 - **API Documentation (Swagger):** [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 - **RabbitMQ UI:** [http://localhost:15672](http://localhost:15672) (ID: `guest`, PW: `guest`)
 - **pgAdmin:** [http://localhost:8080/](http://localhost:8080/) (Email: `admin@admin.com`, PW: `admin123`)
+
+### ⚠️ Important Note for Development (Backend Service)
+
+When running the backend service in development mode with Docker Compose, the local `./backend` directory is mounted into the container as a volume. This means your local files (including the absence of `node_modules` if you haven't run `npm install`) will overwrite the container's `/app` directory. As a result, the dependencies installed during the Docker build (including `cross-env` and others) will not be available inside the container unless you have also installed them locally.
+
+**To avoid errors like `sh: cross-env: not found`, you must run the following command on your host machine before starting the containers:**
+
+```bash
+cd backend
+npm install
+```
+
+This ensures that all required Node.js dependencies are present in your local `backend/node_modules` directory, which will then be available inside the container during development.
 
 ---
 

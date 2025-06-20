@@ -6,7 +6,9 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-    command: npm run start:prod
+    env_file:
+      - ./backend/.env
+    # command: npm run start:prod
     depends_on:
       - postgres
       - rabbitmq
@@ -14,6 +16,8 @@ services:
   python-consumer:
     build:
       context: ./python-event-consumer
+    env_file:
+      - ./python-event-consumer/.env
     depends_on:
       - rabbitmq
     command: python main.py
